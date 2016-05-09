@@ -315,6 +315,12 @@ gulp.task('bundle-lib', function bundleLib() {
     .require(`${PATHS.MODULES}/bootstrap/dist/js/umd/collapse.js`,
       { expose: 'bootstrap-collapse' }
     )
+    .require(`${PATHS.ADMIN_JS_SRC}/state/breadcrumbs/BreadcrumbsActions.js`,
+      { expose: 'state/breadcrumbs/BreadcrumbsActions' }
+    )
+    .require(`${PATHS.ADMIN_JS_SRC}/state/breadcrumbs/BreadcrumbsReducer.js`,
+      { expose: 'state/breadcrumbs/BreadcrumbsReducer' }
+    )
     .bundle()
     .on('error', notify.onError({ message: `${bundleFileName}: <%= error.message %>` }))
     .pipe(source(bundleFileName))
