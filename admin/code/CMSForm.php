@@ -92,8 +92,14 @@ class CMSForm extends Form {
 	 *
 	 * @return string
 	 */
-	public function Link() {
-		return Controller::join_links($this->FormAction(), $this->controller->pageID);
+	public function FormAction() {
+		$formAction = parent::FormAction();
+
+		if ($id = $this->controller->currentPageID()) {
+			return Controller::join_links($formAction, $id);
+		}
+
+		return $formAction;
 	}
 
 }
