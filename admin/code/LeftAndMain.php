@@ -39,6 +39,13 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	private static $url_rule = '/$Action/$ID/$OtherID';
 
 	/**
+	 * @var array
+	 */
+	private static $url_handlers = array(
+		'EditForm/$ID' => 'EditForm',
+	);
+
+	/**
 	 * @config
 	 * @var string
 	 */
@@ -1210,8 +1217,10 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	 * @return Form
 	 */
 	public function EditForm($request = null) {
+		$className = $this->class;
+
 		// set page ID from request
-		if ($request) {
+		if ($request && $className == 'CMSPageEditController') {
 			// validate id is present
 			$id = $request->param('ID');
 
