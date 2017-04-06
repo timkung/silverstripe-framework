@@ -86,4 +86,20 @@ class CMSForm extends Form {
 		return $this->responseNegotiator;
 	}
 
+	/**
+	 * Updating the FormAction to always include the page id to the link so
+	 * nested controllers have context on the page being edited.
+	 *
+	 * @return string
+	 */
+	public function FormAction() {
+		$formAction = parent::FormAction();
+
+		if ($id = $this->controller->currentPageID()) {
+			return Controller::join_links($formAction, $id);
+		}
+
+		return $formAction;
+	}
+
 }

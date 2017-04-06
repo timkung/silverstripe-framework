@@ -39,6 +39,13 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	private static $url_rule = '/$Action/$ID/$OtherID';
 
 	/**
+	 * @var array
+	 */
+	private static $url_handlers = array(
+		'EditForm/$ID' => 'EditForm',
+	);
+
+	/**
 	 * @config
 	 * @var string
 	 */
@@ -117,6 +124,11 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	 * to achieve more flexible templating.
 	 */
 	private static $session_namespace;
+
+	/**
+	 * Current pageID for this request
+	 */
+	protected $pageID = null;
 
 	/**
 	 * Register additional requirements through the {@link Requirements} class.
@@ -1205,6 +1217,20 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	 * @return Form
 	 */
 	public function EditForm($request = null) {
+		$className = $this->class;
+
+		// set page ID from request
+		if ($request && $className == 'CMSPageEditController') {
+			// validate id is present
+			$id = $request->param('ID');
+
+			if (!isset($id)) {
+				return $this->httpError(400);
+			}
+
+			$this->setCurrentPageID($id);
+		}
+
 		return $this->getEditForm();
 	}
 
@@ -1497,6 +1523,9 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	 * @return int
 	 */
 	public function currentPageID() {
+		if ($this->pageID) {
+			return $this->pageID;
+		}
 		if($this->getRequest()->requestVar('ID') && is_numeric($this->getRequest()->requestVar('ID')))	{
 			return $this->getRequest()->requestVar('ID');
 		} elseif ($this->getRequest()->requestVar('CMSMainCurrentPageID') && is_numeric($this->getRequest()->requestVar('CMSMainCurrentPageID'))) {
@@ -1504,11 +1533,14 @@ class LeftAndMain extends Controller implements PermissionProvider {
 			return $this->getRequest()->requestVar('CMSMainCurrentPageID');
 		} elseif (isset($this->urlParams['ID']) && is_numeric($this->urlParams['ID'])) {
 			return $this->urlParams['ID'];
-		} elseif(Session::get($this->sessionNamespace() . ".currentPage")) {
-			return Session::get($this->sessionNamespace() . ".currentPage");
-		} else {
-			return null;
 		}
+
+		/** @deprecated */
+		if (Session::get($this->sessionNamespace() . ".currentPage")) {
+			return Session::get($this->sessionNamespace() . ".currentPage");
+		}
+
+		return null;
 	}
 
 	/**
@@ -1520,7 +1552,9 @@ class LeftAndMain extends Controller implements PermissionProvider {
 	 * @param int $id
 	 */
 	public function setCurrentPageID($id) {
+		$this->pageID = $id;
 		$id = (int)$id;
+		/** @deprecated */
 		Session::set($this->sessionNamespace() . ".currentPage", $id);
 	}
 
